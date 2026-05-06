@@ -1,0 +1,38 @@
+---
+- name: Create app directory
+  file:
+    path: /home/ubuntu/ravishop
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+
+- name: Copy env file
+  template:
+    src: env.j2
+    dest: /home/ubuntu/ravishop/.env
+    owner: ubuntu
+    group: ubuntu
+    mode: '0600'
+
+- name: Pull Docker image from ECR
+  shell: |
+    aws ecr get-login-password --region ap-south-1 | \
+    docker login --username AWS --password-stdin {{ ecr_registry }}
+    docker pull {{ ecr_registry }}/ravishop:latest
+  become_user: ubuntu
+
+- name: Stop existing container
+  docker_container:
+    name: ravishop-app
+    state: absent
+  ignore_errors: yes
+
+- name: Run RaviShop container
+  docker_container:
+    name: ravishop-app
+    image: "{{ ecr_registry }}/ravishop:latest"
+    state: started
+    restart_policy: always
+    ports:
+      - "5000:5000"
+    env_file: /home/ubuntu/ravishop/.env

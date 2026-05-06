@@ -1,0 +1,6 @@
+---
+- name: Restart app
+  docker_container:
+    name: ravishop-app
+    state: started
+    restart: yes

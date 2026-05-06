@@ -1,0 +1,15 @@
+---
+- name: Setup RaviShop Server
+  hosts: webservers
+  become: yes
+
+  vars:
+    ecr_registry: "{{ aws_account_idddd }}.dkr.ap-south-1.amazonaws.com"
+    secret_key: "ravishop-secret-key-2026"
+    db_username: "admin"
+    db_password: "Ravishop2026"
+    db_endpoint: "{{ rds_endpoint }]"
+
+roles:
+  - docker
+  - app
